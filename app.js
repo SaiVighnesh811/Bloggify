@@ -33,13 +33,25 @@ app.use(express.static('./public'))
 //   next();
 // });
 
-app.get('/',async(req,res)=>{
-    const blogs=await Blog.find({})
-    res.render('home',{
-        user:req.user, 
-        blogs:blogs,
-    })
-})
+app.get('/', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connection.asPromise();
+    }
+    const blogs = await Blog.find({});
+    res.render('home', {
+      user: req.user,
+      blogs: blogs,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('home', {
+      user: req.user,
+      blogs: [],
+      error: "Database connection delay. Please refresh the page.",
+    });
+  }
+});
 
 app.use('/user',userRoute)
 app.use('/blog',blogRoute )
