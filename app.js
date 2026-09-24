@@ -11,7 +11,10 @@ const { checkForAunthenticationCookie } = require('./middleware/auth');
 
 const PORT=process.env.PORT || 8000
 
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect(process.env.MONGO_URL,{
+    serverSelectionTimeoutMS: 15000,
+    bufferCommands: false 
+})
 .then(()=>console.log('MongoDb connection successfull'))
 .catch((err)=>console.log('Error connectiong mongoDB',err))
 
@@ -22,6 +25,13 @@ app.use(express.urlencoded({extended:false}))
 app.use(cookieParser())
 app.use(checkForAunthenticationCookie("token"))
 app.use(express.static('./public'))
+
+app.use((req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).send("Database booting up, please refresh in a moment.");
+  }
+  next();
+});
 
 app.get('/',async(req,res)=>{
     const blogs=await Blog.find({})
