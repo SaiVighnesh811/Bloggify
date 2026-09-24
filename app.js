@@ -26,12 +26,12 @@ app.use(cookieParser())
 app.use(checkForAunthenticationCookie("token"))
 app.use(express.static('./public'))
 
-app.use((req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).send("Database booting up, please refresh in a moment.");
-  }
-  next();
-});
+// app.use((req, res, next) => {
+//   if (mongoose.connection.readyState !== 1) {
+//     return res.status(503).send("Database booting up, please refresh in a moment.");
+//   }
+//   next();
+// });
 
 app.get('/',async(req,res)=>{
     const blogs=await Blog.find({})
